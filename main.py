@@ -17,6 +17,14 @@ def windown1(): #Напоминания
         else:
             showerror(title="Пустое поле.", message="Пожалуйста, введите напоминание.")
 
+     def delete_task():
+       global tasks #а зачем?
+       task=Tasklist.curselection()
+       if task:
+         Tasklist.delete(task)
+       else:
+          showerror(title="Пустое поле.", message="Пожалуйста, ввыберете упоминание!")
+
 
     Createtask = ttk.Entry(Win1)
     Createtask.place(rely=0, relx=0, relwidth=1)
@@ -30,7 +38,7 @@ def windown1(): #Напоминания
     Endbtn1 = ttk.Button(Win1, text="Завершить")
     Endbtn1.place(relx=0.42, rely=0.05)
 
-    Delbtn = ttk.Button(Win1, text="Удалить")
+    Delbtn = ttk.Button(Win1, text="Удалить", command=delete_task)
     Delbtn.place(relx=0.625, rely=0.05)
 
     Archivebtn = ttk.Button(Win1, text="Архив задач")
