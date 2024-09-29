@@ -3,12 +3,13 @@ from tkinter import *
 from tkinter import ttk
 from tkinter.messagebox import showerror
 #import os
-archiv_task=None
+
 def windown1(): #Напоминания
     Win1 = Tk()
     Win1.title("Напоминания")
     Win1.geometry("600x710")
     Win1.resizable(False, False)
+    archiv_task=None #Храним наш недо-архив
 
     def create_task(): #Create task
         global tasks
