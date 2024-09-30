@@ -12,14 +12,12 @@ def windown1(): #Напоминания
     archiv_task=None #Храним наш недо-архив
 
     def create_task(): #Create task
-        global tasks
         task = Createtask.get()
         if task != "":
             Tasklist.insert(0, task)
         else:
             showerror(title="Пустое поле.", message="Пожалуйста, введите напоминание.")
     def delete_task():
-       global tasks #а зачем?
        task=Tasklist.curselection()
        if task:
          Tasklist.delete(task)
