@@ -30,6 +30,7 @@ def windown1(): #Напоминания
         Win2.geometry("500x600")
         archiv = Listbox(Win2)
         archiv.pack()
+
     def end_task():
         task = Tasklist.curselection()
         if task:
@@ -38,6 +39,8 @@ def windown1(): #Напоминания
             Tasklist.delete(task)
         else:
             showerror("Ничего не выбрано", "Выберите что-то")
+        with open('archiv.TXT','a') as file:
+            file.write(select_task+'\n')
 
     Createtask = ttk.Entry(Win1)
     Createtask.place(rely=0, relx=0, relwidth=1)
