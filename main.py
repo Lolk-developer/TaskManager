@@ -3,32 +3,38 @@ from tkinter import *
 from tkinter import ttk
 from tkinter.messagebox import showerror
 #import os
-
 def windown1(): #Напоминания
     Win1 = Tk()
     Win1.title("Напоминания")
     Win1.geometry("600x710")
     Win1.resizable(False, False)
-    archiv_task=None #Храним наш недо-архив
 
     def create_task(): #Create task
+        global tasks
         task = Createtask.get()
         if task != "":
             Tasklist.insert(0, task)
         else:
             showerror(title="Пустое поле.", message="Пожалуйста, введите напоминание.")
     def delete_task():
+       global tasks #а зачем?
        task=Tasklist.curselection()
        if task:
          Tasklist.delete(task)
        else:
           showerror(title="Пустое поле.", message="Пожалуйста, ввыберете упоминание!")
-
+    def Archiv():
+        global archiv
+        Win2=Tk()
+        Win2.title("Archiv")
+        Win2.geometry("500x600")
+        archiv = Listbox(Win2)
+        archiv.pack()
     def end_task():
         task = Tasklist.curselection()
         if task:
             select_task=Tasklist.get(task)
-            archiv_task.insert(END, select_task)
+            archiv.insert(END, select_task)
             Tasklist.delete(task)
         else:
             showerror("Ничего не выбрано", "Выберите что-то")
@@ -48,14 +54,11 @@ def windown1(): #Напоминания
     Delbtn = ttk.Button(Win1, text="Удалить", command=delete_task)
     Delbtn.place(relx=0.625, rely=0.05)
 
-    Archivebtn = ttk.Button(Win1, text="Архив задач",)
+    Archivebtn = ttk.Button(Win1, text="Архив задач",command=Archiv)
     Archivebtn.place(relx=0.8, rely=0.05)
 
     Tasklist = Listbox(Win1)
-    Tasklist.place(relx=0.1, rely=0.3)
-
-    archiv_task = Listbox(Win1)
-    archiv_task.place(relx=0.5, rely=0.3)
+    Tasklist.place(relx=0, rely=0.15, relwidth=1, relheight=0.9)
 
 
 
