@@ -30,10 +30,21 @@ def windown1(): #Напоминания
         Win2.geometry("500x600")
         archiv = Listbox(Win2)
         archiv.pack()
+        DelArch = ttk.Button(Win2, text="Удалить",command=delete_Archiv)
+        DelArch.place(relx=0.420, rely=0.300)
 
+      def delete_Archiv():
+       global ark
+       ark=archiv.curselection()
+       if ark:
+         archiv.delete(ark)
+       else:
+          showerror(title="Пустое поле.", message="Пожалуйста, ввыберпппете упоминание!")
+           
     def end_task():
         task = Tasklist.curselection()
         if task:
+            Archiv() #Вызов открытия окна архива
             select_task=Tasklist.get(task)
             archiv.insert(END, select_task)
             Tasklist.delete(task)
