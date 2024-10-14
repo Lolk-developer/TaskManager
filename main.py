@@ -1,14 +1,15 @@
 from tkinter import *
 from tkinter import ttk
-from tkinter.messagebox import showerror, showwarning
+from tkinter.messagebox import showerror
+from datetime import date
 
-def windown1():  # Напоминания
+def windown1(): 
     Win1 = Tk()
     Win1.title("Напоминания")
     Win1.geometry("600x710")
     Win1.resizable(False, False)
 
-    def create_task():  # Create task
+    def create_task():
         task = Createtask.get()
         if task != "":
             Tasklist.insert(0, task)
@@ -28,9 +29,9 @@ def windown1():  # Напоминания
         Win2.title("Архив")
         Win2.geometry("500x600")
         archiv = Listbox(Win2)
-        archiv.pack()
+        archiv.place(relx=0, rely=0, relwidth=1, relheight=0.9)
         DelArch = ttk.Button(Win2, text="Удалить", command=delete_Archiv)
-        DelArch.place(relx=0.420, rely=0.300)
+        DelArch.place(relx=0.420, rely=0.9)
 
     def delete_Archiv():
         global ark
@@ -74,9 +75,7 @@ def windown1():  # Напоминания
     Tasklist.place(relx=0, rely=0.15, relwidth=1, relheight=0.9)
 
 
-# Список для хранения заметок
 notes_list = []
-
 
 def notion():
     Win2 = Tk()
@@ -85,7 +84,6 @@ def notion():
     Win2.resizable(False, False)
 
     def new_notes():
-        # Окно для создания новой заметки
         Nnotes = Tk()
         Nnotes.title("Создание новой заметки")
         Nnotes.geometry("600x710")
@@ -101,35 +99,29 @@ def notion():
         label2.place(relx=0, rely=0.11)
 
         maintext = ttk.Entry(Nnotes)
-        maintext.place(relx=0, rely=0.15, relwidth=1, relheight=0.9)
+        maintext.place(relx=0, rely=0.15, relwidth=1, relheight=0.75)
 
         def save_note():
-            # Сохранение заголовка и текста заметки
-            note_title = title.get()
+            note_title = f"{title.get()} \n (дата создания:{date.today()})"
             note_text = maintext.get()
 
-            # Добавляем заголовок в список и отображаем его в Listbox
             if note_title:
                 notes_list.append((note_title, note_text))
                 Tasklist.insert("end", note_title)
 
-            # Закрываем окно создания заметки
             Nnotes.destroy()
 
-        # Кнопка для сохранения заметки
         save_btn = ttk.Button(Nnotes, text="Сохранить", command=save_note)
-        save_btn.place(relx=0.4, rely=0.93)
+        save_btn.place(relx=0.4, rely=0.9)
 
     def read_note():
-        # Получаем выбранную заметку
         selected_index = Tasklist.curselection()
         if selected_index:
             selected_index = selected_index[0]
             note_title, note_text = notes_list[selected_index]
 
-            # Открываем окно для отображения заметки
             ReadNote = Tk()
-            ReadNote.title(f"Чтение: {note_title}")
+            ReadNote.title(f"{note_title}")
             ReadNote.geometry("600x710")
             ReadNote.resizable(False, False)
 
@@ -140,7 +132,7 @@ def notion():
             label2.pack(pady=10)
 
         else:
-            showwarning("Ошибка", "Выберите заметку для чтения")
+            showerror("Ошибка", "Выберите заметку для чтения")
 
     Createbtn = ttk.Button(Win2, text="Создать", command=new_notes)
     Createbtn.place(relx=0)
@@ -151,7 +143,6 @@ def notion():
     Delbtn = ttk.Button(Win2, text="Удалить")
     Delbtn.place(relx=0.845)
 
-    # Listbox для отображения заголовков заметок
     Tasklist = Listbox(Win2)
     Tasklist.place(relx=0, rely=0.05, relwidth=1, relheight=1)
 
@@ -159,8 +150,8 @@ def notion():
 
 
 Mainwindow = Tk()
-Mainwindow.title("Main menu")  # Титл
-Mainwindow.geometry("600x710")  # Разрешние
+Mainwindow.title("Главное меню")
+Mainwindow.geometry("600x710")
 Mainwindow.resizable(False, False)
 
 Text = ttk.Label(text="Tast Manager", font=("Helvetica", 16))
