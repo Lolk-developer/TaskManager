@@ -3,13 +3,13 @@ from tkinter import ttk
 from tkinter.messagebox import showerror
 from datetime import date
 
-def windown1(): 
+def windown1():  # Напоминания
     Win1 = Tk()
     Win1.title("Напоминания")
     Win1.geometry("600x710")
     Win1.resizable(False, False)
 
-    def create_task():
+    def create_task():  # Create task
         task = Createtask.get()
         if task != "":
             Tasklist.insert(0, task)
@@ -107,7 +107,7 @@ def notion():
 
             if note_title:
                 notes_list.append((note_title, note_text))
-                Tasklist.insert("end", note_title)
+                NoteList.insert("end", note_title)
 
             Nnotes.destroy()
 
@@ -115,7 +115,7 @@ def notion():
         save_btn.place(relx=0.4, rely=0.9)
 
     def read_note():
-        selected_index = Tasklist.curselection()
+        selected_index = NoteList.curselection()
         if selected_index:
             selected_index = selected_index[0]
             note_title, note_text = notes_list[selected_index]
@@ -134,19 +134,30 @@ def notion():
         else:
             showerror("Ошибка", "Выберите заметку для чтения")
 
+    def shortnotion():
+        Shortwin = Tk()
+        Shortwin.title("Быстрая заметка")
+        Shortwin.geometry("200x200")
+        Shortwin.resizable(False, False)
+
+        shorttext = ttk.Entry(Shortwin)
+        shorttext.place(relwidth=1, relheight=1)
+
+
     Createbtn = ttk.Button(Win2, text="Создать", command=new_notes)
     Createbtn.place(relx=0)
 
     Readbtn = ttk.Button(Win2, text="Читать", command=read_note)
-    Readbtn.place(relx=0.4)
+    Readbtn.place(relx=0.42)
 
     Delbtn = ttk.Button(Win2, text="Удалить")
     Delbtn.place(relx=0.845)
 
-    Tasklist = Listbox(Win2)
-    Tasklist.place(relx=0, rely=0.05, relwidth=1, relheight=1)
+    NoteList = Listbox(Win2)
+    NoteList.place(relx=0, rely=0.05, relwidth=1, relheight=0.85)
 
-    Win2.mainloop()
+    Shortbtn = ttk.Button(Win2, text="+", command=shortnotion)
+    Shortbtn.place(relx=0.92, rely=0.9, relwidth=0.08)
 
 
 Mainwindow = Tk()
