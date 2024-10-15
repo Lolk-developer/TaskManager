@@ -134,6 +134,16 @@ def notion():
         else:
             showerror("Ошибка", "Выберите заметку для чтения")
 
+    
+    def delete_note():
+        selected_index = NoteList.curselection()
+        if selected_index:
+            selected = selected_index[0]
+            notes_list.pop(selected) #ведь удаляет по индексу
+            NoteList.delete(selected_index)
+        else:
+            showerror("Ошибка", "Выберите заметку для удаления")
+
     def shortnotion():
         Shortwin = Tk()
         Shortwin.title("Быстрая заметка")
