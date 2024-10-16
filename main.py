@@ -160,7 +160,7 @@ def notion():
     Readbtn = ttk.Button(Win2, text="Читать", command=read_note)
     Readbtn.place(relx=0.42)
 
-    Delbtn = ttk.Button(Win2, text="Удалить")
+    Delbtn = ttk.Button(Win2, text="Удалить", command=delete_note)
     Delbtn.place(relx=0.845)
 
     NoteList = Listbox(Win2)
