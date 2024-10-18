@@ -16,6 +16,28 @@ def windown1():  # Напоминания
         else:
             showerror(title="Пустое поле.", message="Пожалуйста, введите напоминание.")
 
+
+    def edit_win():
+        global redact
+        task = Tasklist.curselection()
+        def update_task():
+            Tasklist.delete(task)
+            Tasklist.insert(task,Updtask.get())
+            Win3.destroy()
+
+        if task:
+           Win3= Tk()
+           Win3.title("Редактирование задачи")
+           Win3.geometry("500x200")
+           Updtask = ttk.Entry(Win3, width=65)
+           Updtask.insert(0,Tasklist.get(task))
+           Updtask.place(relx=0.1, rely=0.3)
+           Updbtn = ttk.Button(Win3, text="Сохранить", command=update_task)
+           Updbtn.place(relx=0.42, rely=0.6)
+        else:
+            showerror(title="Пустое поле.", message="Пожалуйста, ввыберете упоминание!")
+
+    
     def delete_task():
         task = Tasklist.curselection()
         if task:
@@ -59,7 +81,7 @@ def windown1():  # Напоминания
     Createbtn1 = ttk.Button(Win1, text="Создать", command=create_task)
     Createbtn1.place(relx=0, rely=0.05)
 
-    Editbtn1 = ttk.Button(Win1, text="Редактировать")
+    Editbtn1 = ttk.Button(Win1, text="Редактировать", command=edit_win)
     Editbtn1.place(relx=0.175, rely=0.05)
 
     Endbtn1 = ttk.Button(Win1, text="Завершить", command=end_task)
