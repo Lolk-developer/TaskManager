@@ -156,6 +156,49 @@ def notion():
         else:
             showerror("Ошибка", "Выберите заметку для чтения")
 
+
+    
+    def update_note():
+        selected_index = NoteList.curselection()
+        if selected_index:
+            index = selected_index[0]
+            note6_title, note6_text = notes_list[index]
+            Rnotes = Tk()
+            Rnotes.title("Редактирование заметки")
+            Rnotes.geometry("600x710")
+            Rnotes.resizable(False, False)
+
+            label1 = ttk.Label(Rnotes, text="Заголовок")
+            label1.place(relx=0)
+
+            newtitle = ttk.Entry(Rnotes)
+            newtitle.insert(0,note6_title)#К сожелению он добавляет в название и дату
+            newtitle.place(relx=0, rely=0.04, relwidth=1)
+
+            label2 = ttk.Label(Rnotes, text="Текст")
+            label2.place(relx=0, rely=0.11)
+
+            newtext = ttk.Entry(Rnotes)
+            newtext.insert(0,note6_text)
+            newtext.place(relx=0, rely=0.15, relwidth=1, relheight=0.75)
+
+            def save_note():
+                note_title = f"{newtitle.get()} \n (дата редактирования:{date.today()})"
+                note_text = newtext.get()
+                if note_title:
+                    notes_list[index] = note_title, note_text
+                    NoteList.delete(selected_index)
+                    NoteList.insert(index, note_title)
+
+                Rnotes.destroy()
+
+            save_btn = ttk.Button(Rnotes, text="Сохранить", command=save_note)
+            save_btn.place(relx=0.4, rely=0.9)
+
+        else:
+            showerror("Ошибка", "Выберите заметку для редактирования")
+
+
     
     def delete_note():
         selected_index = NoteList.curselection()
@@ -184,6 +227,9 @@ def notion():
 
     Delbtn = ttk.Button(Win2, text="Удалить", command=delete_note)
     Delbtn.place(relx=0.845)
+
+    EditBtn =  ttk.Button(Win2, text="Изменить", command=update_note)
+    EditBtn.place(relx=0.60)
 
     NoteList = Listbox(Win2)
     NoteList.place(relx=0, rely=0.05, relwidth=1, relheight=0.85)
