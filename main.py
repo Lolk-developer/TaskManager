@@ -2,6 +2,8 @@ from tkinter import *
 from tkinter import ttk
 from tkinter.messagebox import showerror
 from datetime import date
+import json
+
 
 def windown1():  # Напоминания
     Win1 = Tk()
@@ -13,35 +15,39 @@ def windown1():  # Напоминания
         task = Createtask.get()
         if task != "":
             Tasklist.insert(0, task)
+            with open("tasks.txt", "w") as file:
+                file.write(task + "\n")
         else:
             showerror(title="Пустое поле.", message="Пожалуйста, введите напоминание.")
-
 
     def edit_win():
         global redact
         task = Tasklist.curselection()
+
         def update_task():
             Tasklist.delete(task)
-            Tasklist.insert(task,Updtask.get())
+            Tasklist.insert(task, Updtask.get())
             Win3.destroy()
 
         if task:
-           Win3= Tk()
-           Win3.title("Редактирование задачи")
-           Win3.geometry("500x200")
-           Updtask = ttk.Entry(Win3, width=65)
-           Updtask.insert(0,Tasklist.get(task))
-           Updtask.place(relx=0.1, rely=0.3)
-           Updbtn = ttk.Button(Win3, text="Сохранить", command=update_task)
-           Updbtn.place(relx=0.42, rely=0.6)
+            Win3 = Tk()
+            Win3.title("Редактирование задачи")
+            Win3.geometry("500x200")
+            Updtask = ttk.Entry(Win3, width=65)
+            Updtask.insert(0, Tasklist.get(task))
+            Updtask.place(relx=0.1, rely=0.3)
+            Updbtn = ttk.Button(Win3, text="Сохранить", command=update_task)
+            Updbtn.place(relx=0.42, rely=0.6)
         else:
             showerror(title="Пустое поле.", message="Пожалуйста, ввыберете упоминание!")
 
-    
     def delete_task():
         task = Tasklist.curselection()
         if task:
             Tasklist.delete(task)
+            with open("tasks.txt", "w", encoding='utf-8') as file:
+                for item in Tasklist.get(0, END):
+                    file.write(item + '\n')
         else:
             showerror(title="Пустое поле.", message="Пожалуйста, ввыберете упоминание!")
 
@@ -51,8 +57,8 @@ def windown1():  # Напоминания
         Win2.title("Архив")
         Win2.geometry("500x600")
         archiv = Listbox(Win2)
-        with open("archiv.txt","r",encoding='utf-8') as file:
-            lst=file.readlines()
+        with open("archiv.txt", "r", encoding='utf-8') as file:
+            lst = file.readlines()
         for item in lst:
             archiv.insert(END, item)
         archiv.place(relx=0, rely=0, relwidth=1, relheight=0.9)
@@ -70,7 +76,6 @@ def windown1():  # Напоминания
         else:
             showerror(title="Пустое поле.", message="Пожалуйста, выберете упоминание!")
 
-
     def end_task():
         task = Tasklist.curselection()
         if task:
@@ -78,8 +83,12 @@ def windown1():  # Напоминания
             select_task = Tasklist.get(task)
             archiv.insert(END, select_task)
             Tasklist.delete(task)
-            with open('archiv.TXT', 'a') as file:
+
+            with open('archiv.txt', 'a') as file:
                 file.write(select_task + '\n')
+            with open("tasks.txt", "w", encoding='utf-8') as file:
+                for item in Tasklist.get(0, END):
+                    file.write(item + '\n')
         else:
             showerror("Ничего не выбрано", "Выберите что-то")
 
@@ -103,9 +112,28 @@ def windown1():  # Напоминания
 
     Tasklist = Listbox(Win1)
     Tasklist.place(relx=0, rely=0.15, relwidth=1, relheight=0.9)
+    with open("tasks.txt", "r", encoding='utf-8') as file:
+        lst = file.readlines()
+    for item in lst:
+        Tasklist.insert(0, item)
 
 
 notes_list = []
+
+
+def save_notes_to_file():
+    with open("notes.json", "w", encoding="utf-8") as file:
+        json.dump(notes_list, file, ensure_ascii=False, indent=4)
+
+
+def load_notes_from_file():
+    global notes_list
+    try:
+        with open("notes.json", "r", encoding="utf-8") as file:
+            notes_list = json.load(file)
+    except FileNotFoundError:
+        notes_list = []
+
 
 def notion():
     Win2 = Tk()
@@ -138,7 +166,7 @@ def notion():
             if note_title:
                 notes_list.append((note_title, note_text))
                 NoteList.insert("end", note_title)
-
+                save_notes_to_file()  
             Nnotes.destroy()
 
         save_btn = ttk.Button(Nnotes, text="Сохранить", command=save_note)
@@ -164,13 +192,11 @@ def notion():
         else:
             showerror("Ошибка", "Выберите заметку для чтения")
 
-
-    
     def update_note():
         selected_index = NoteList.curselection()
         if selected_index:
             index = selected_index[0]
-            note6_title, note6_text = notes_list[index]
+            note_title, note_text = notes_list[index]
             Rnotes = Tk()
             Rnotes.title("Редактирование заметки")
             Rnotes.geometry("600x710")
@@ -180,23 +206,24 @@ def notion():
             label1.place(relx=0)
 
             newtitle = ttk.Entry(Rnotes)
-            newtitle.insert(0,note6_title)#К сожелению он добавляет в название и дату
+            newtitle.insert(0, note_title.split("\n")[0]) 
             newtitle.place(relx=0, rely=0.04, relwidth=1)
 
             label2 = ttk.Label(Rnotes, text="Текст")
             label2.place(relx=0, rely=0.11)
 
             newtext = ttk.Entry(Rnotes)
-            newtext.insert(0,note6_text)
+            newtext.insert(0, note_text)
             newtext.place(relx=0, rely=0.15, relwidth=1, relheight=0.75)
 
             def save_note():
-                note_title = f"{newtitle.get()} \n (дата редактирования:{date.today()})"
-                note_text = newtext.get()
-                if note_title:
-                    notes_list[index] = note_title, note_text
+                new_note_title = f"{newtitle.get()} \n (дата редактирования:{date.today()})"
+                new_note_text = newtext.get()
+                if new_note_title:
+                    notes_list[index] = new_note_title, new_note_text
                     NoteList.delete(selected_index)
-                    NoteList.insert(index, note_title)
+                    NoteList.insert(index, new_note_title)
+                    save_notes_to_file() 
 
                 Rnotes.destroy()
 
@@ -206,14 +233,13 @@ def notion():
         else:
             showerror("Ошибка", "Выберите заметку для редактирования")
 
-
-    
     def delete_note():
         selected_index = NoteList.curselection()
         if selected_index:
             selected = selected_index[0]
-            notes_list.pop(selected) #ведь удаляет по индексу
+            notes_list.pop(selected)
             NoteList.delete(selected_index)
+            save_notes_to_file() 
         else:
             showerror("Ошибка", "Выберите заметку для удаления")
 
@@ -226,7 +252,6 @@ def notion():
         shorttext = ttk.Entry(Shortwin)
         shorttext.place(relwidth=1, relheight=1)
 
-
     Createbtn = ttk.Button(Win2, text="Создать", command=new_notes)
     Createbtn.place(relx=0)
 
@@ -236,11 +261,14 @@ def notion():
     Delbtn = ttk.Button(Win2, text="Удалить", command=delete_note)
     Delbtn.place(relx=0.845)
 
-    EditBtn =  ttk.Button(Win2, text="Изменить", command=update_note)
+    EditBtn = ttk.Button(Win2, text="Изменить", command=update_note)
     EditBtn.place(relx=0.60)
 
     NoteList = Listbox(Win2)
     NoteList.place(relx=0, rely=0.05, relwidth=1, relheight=0.85)
+    load_notes_from_file()
+    for note_title, note_text in notes_list:
+        NoteList.insert("end", note_title)
 
     Shortbtn = ttk.Button(Win2, text="+", command=shortnotion)
     Shortbtn.place(relx=0.92, rely=0.9, relwidth=0.08)
