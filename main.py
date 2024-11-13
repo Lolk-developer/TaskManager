@@ -119,7 +119,7 @@ def windown1():  # Напоминания
 
 
 notes_list = []
-
+tags_list = []
 
 def save_notes_to_file():
     with open("notes.json", "w", encoding="utf-8") as file:
@@ -133,6 +133,19 @@ def load_notes_from_file():
             notes_list = json.load(file)
     except FileNotFoundError:
         notes_list = []
+
+def save_tags_to_file():
+    with open("tags.json", "w", encoding="utf-8") as file:
+        json.dump(tags_list, file, ensure_ascii=False, indent=4)
+
+
+def load_tags_from_file():
+    global tags_list
+    try:
+        with open("tags.json", "r", encoding="utf-8") as file:
+            tags_list = json.load(file)
+    except FileNotFoundError:
+        tags_list = []
 
 
 def notion():
@@ -154,10 +167,16 @@ def notion():
         title.place(relx=0, rely=0.04, relwidth=1)
 
         label2 = ttk.Label(Nnotes, text="Текст")
-        label2.place(relx=0, rely=0.11)
+        label2.place(relx=0, rely=0.16)
+
+        label3 = ttk.Label(Nnotes, text="теги")
+        label3.pack(padx=0, pady=50) #По другому хотябы туда не поставить
 
         maintext = ttk.Entry(Nnotes)
-        maintext.place(relx=0, rely=0.15, relwidth=1, relheight=0.75)
+         maintext.place(relx=0, rely=0.20, relwidth=1, relheight=0.68)
+
+        maintag = ttk.Entry(Nnotes)
+        maintag.place(relx=0, rely=0.11, relwidth=1)
 
         def save_note():
             note_title = f"{title.get()} \n (дата создания:{date.today()})"
@@ -167,6 +186,8 @@ def notion():
                 notes_list.append((note_title, note_text))
                 NoteList.insert("end", note_title)
                 save_notes_to_file()  
+                tags_list.append(tag_text)
+                save_tags_to_file()
             Nnotes.destroy()
 
         save_btn = ttk.Button(Nnotes, text="Сохранить", command=save_note)
@@ -188,7 +209,13 @@ def notion():
 
             label2 = ttk.Label(ReadNote, text=note_text, wraplength=500, justify="left")
             label2.pack(pady=10)
+            
+            label3 = ttk.Label(ReadNote, text="Теги:", wraplength=500, justify="left")
+            label3.pack(pady=10)
 
+            label4 = ttk.Label(ReadNote, text=tag_text, wraplength=500, justify="left")
+            label4.pack(pady=10)
+       
         else:
             showerror("Ошибка", "Выберите заметку для чтения")
 
@@ -197,6 +224,7 @@ def notion():
         if selected_index:
             index = selected_index[0]
             note_title, note_text = notes_list[index]
+            tag_text = tags_list[index]
             Rnotes = Tk()
             Rnotes.title("Редактирование заметки")
             Rnotes.geometry("600x710")
@@ -210,20 +238,31 @@ def notion():
             newtitle.place(relx=0, rely=0.04, relwidth=1)
 
             label2 = ttk.Label(Rnotes, text="Текст")
-            label2.place(relx=0, rely=0.11)
+            label2.place(relx=0, rely=0.16)
 
             newtext = ttk.Entry(Rnotes)
             newtext.insert(0, note_text)
             newtext.place(relx=0, rely=0.15, relwidth=1, relheight=0.75)
 
+            label3 = ttk.Label(Rnotes, text="теги")
+            label3.pack(padx=0, pady=50)  # По другому хотябы туда не поставить
+
+            newtag = ttk.Entry(Rnotes)
+            newtag.insert(0, tag_text)
+            newtag.place(relx=0, rely=0.11, relwidth=1)
+
+
             def save_note():
                 new_note_title = f"{newtitle.get()} \n (дата редактирования:{date.today()})"
                 new_note_text = newtext.get()
+                new_tag = newtag.get()
                 if new_note_title:
                     notes_list[index] = new_note_title, new_note_text
+                    tags_list[index] = new_tag
                     NoteList.delete(selected_index)
                     NoteList.insert(index, new_note_title)
                     save_notes_to_file() 
+                    save_tags_to_file()
 
                 Rnotes.destroy()
 
@@ -238,8 +277,10 @@ def notion():
         if selected_index:
             selected = selected_index[0]
             notes_list.pop(selected)
+            tags_list.pop(selected)
             NoteList.delete(selected_index)
             save_notes_to_file() 
+            save_tags_to_file()
         else:
             showerror("Ошибка", "Выберите заметку для удаления")
 
@@ -269,7 +310,8 @@ def notion():
     load_notes_from_file()
     for note_title, note_text in notes_list:
         NoteList.insert("end", note_title)
-
+    
+    load_tags_from_file()
     Shortbtn = ttk.Button(Win2, text="+", command=shortnotion)
     Shortbtn.place(relx=0.92, rely=0.9, relwidth=0.08)
 
