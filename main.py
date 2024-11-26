@@ -1,6 +1,7 @@
 from tkinter import *
-from tkinter import ttk
+from tkinter import ttk, filedialog, Toplevel
 from tkinter.messagebox import showerror
+from PIL import Image, ImageTk
 from datetime import date
 import json
 
@@ -74,7 +75,7 @@ def windown1():  # Напоминания
                 for item in archiv.get(0, END):
                     file.write(item + '\n')
         else:
-            showerror(title="Пустое поле.", message="Пожалуйста, выберете упоминание!")
+            showerror(title="Пустое поле.", message="Пожалуйста, выберите упоминание!")
 
     def end_task():
         task = Tasklist.curselection()
@@ -119,7 +120,6 @@ def windown1():  # Напоминания
 
 
 notes_list = []
-tags_list = []
 
 def save_notes_to_file():
     with open("notes.json", "w", encoding="utf-8") as file:
@@ -134,19 +134,6 @@ def load_notes_from_file():
     except FileNotFoundError:
         notes_list = []
 
-def save_tags_to_file():
-    with open("tags.json", "w", encoding="utf-8") as file:
-        json.dump(tags_list, file, ensure_ascii=False, indent=4)
-
-
-def load_tags_from_file():
-    global tags_list
-    try:
-        with open("tags.json", "r", encoding="utf-8") as file:
-            tags_list = json.load(file)
-    except FileNotFoundError:
-        tags_list = []
-
 
 def notion():
     Win2 = Tk()
@@ -157,141 +144,205 @@ def notion():
     def new_notes():
         Nnotes = Tk()
         Nnotes.title("Создание новой заметки")
-        Nnotes.geometry("600x710")
+        Nnotes.geometry("700x810")
         Nnotes.resizable(False, False)
+
+
+        def add_img():
+            file_path = filedialog.askopenfilename(filetypes=[("Image files", "*.jpg *.jpeg *.png *.gif")])
+            if file_path:
+                photos.insert("end", file_path)
+
+        def show_img():
+            selected_index = photos.curselection()
+            if selected_index:
+                file_path = photos.get(selected_index[0])
+                img = Image.open(file_path)
+                img.show()
+            else:
+                showerror(title="Пустое поле.", message="Пожалуйста, выберите фото!")
+
+        def delete_img():
+            selected_index = photos.curselection()
+            if selected_index:
+                photos.delete(selected_index[0])
+
 
         label1 = ttk.Label(Nnotes, text="Заголовок")
         label1.place(relx=0)
 
         title = ttk.Entry(Nnotes)
-        title.place(relx=0, rely=0.04, relwidth=1)
+        title.place(relx=0, rely=0.025, relwidth=1)
 
-        label2 = ttk.Label(Nnotes, text="Текст")
-        label2.place(relx=0, rely=0.16)
+        tag = ttk.Label(Nnotes, text="Теги")
+        tag.place(relx=0, rely=0.08)
 
-        label3 = ttk.Label(Nnotes, text="теги")
-        label3.pack(padx=0, pady=50) #По другому хотябы туда не поставить
+        tags = ttk.Entry(Nnotes)
+        tags.place(relx=0, rely=0.1, relwidth=1)
 
-        maintext = ttk.Entry(Nnotes)
-         maintext.place(relx=0, rely=0.20, relwidth=1, relheight=0.68)
+        label3 = ttk.Label(Nnotes, text="Текст")
+        label3.place(relx=0, rely=0.15)
 
-        maintag = ttk.Entry(Nnotes)
-        maintag.place(relx=0, rely=0.11, relwidth=1)
+        maintext = Text(Nnotes)
+        maintext.place(relx=0, rely=0.17, relwidth=1, relheight=0.5)
+
+        photos = Listbox(Nnotes)
+        photos.place(relx=0, rely=0.7, relwidth=0.75, relheight=0.23)
+
+        addphoto = ttk.Button(Nnotes, text="Добавить фото", command=add_img)
+        addphoto.place(relx=0.765, rely=0.695)
+
+        showphoto = ttk.Button(Nnotes, text="Предпросмотр", command=show_img)
+        showphoto.place(relx=0.765, rely=0.795)
+
+        deletephoto = ttk.Button(Nnotes, text=" Удалить фото ", command=delete_img)
+        deletephoto.place(relx=0.765, rely=0.9)
+
 
         def save_note():
-            note_title = f"{title.get()} \n (дата создания:{date.today()})"
-            note_text = maintext.get()
+            note_title = f"{title.get()} | ({date.today()})"
+            note_text = maintext.get("1.0", "end")
+            tags_text = tags.get()
+            file_paths = photos.get(0, "end")
 
             if note_title:
-                notes_list.append((note_title, note_text))
+                notes_list.append((note_title, note_text, tags_text, file_paths))
                 NoteList.insert("end", note_title)
                 save_notes_to_file()  
-                tags_list.append(tag_text)
-                save_tags_to_file()
             Nnotes.destroy()
 
         save_btn = ttk.Button(Nnotes, text="Сохранить", command=save_note)
-        save_btn.place(relx=0.4, rely=0.9)
+        save_btn.place(relx=0.4, rely=0.95)
+
 
     def read_note():
         selected_index = NoteList.curselection()
         if selected_index:
             selected_index = selected_index[0]
-            note_title, note_text = notes_list[selected_index]
+            note_title, note_text, tags, image_paths = notes_list[selected_index]
 
-            ReadNote = Tk()
+            ReadNote = Toplevel()
             ReadNote.title(f"{note_title}")
             ReadNote.geometry("600x710")
-            ReadNote.resizable(False, False)
 
             label1 = ttk.Label(ReadNote, text=note_title, font=("Helvetica", 16))
             label1.pack(pady=10)
 
-            label2 = ttk.Label(ReadNote, text=note_text, wraplength=500, justify="left")
+            label2 = ttk.Label(ReadNote, text=f"теги: {tags}", wraplength=500, justify="left")
             label2.pack(pady=10)
-            
-            label3 = ttk.Label(ReadNote, text="Теги:", wraplength=500, justify="left")
+
+            label3 = ttk.Label(ReadNote, text=note_text, wraplength=500, justify="left")
             label3.pack(pady=10)
 
-            label4 = ttk.Label(ReadNote, text=tag_text, wraplength=500, justify="left")
-            label4.pack(pady=10)
-       
+            images = []
+
+            for i, path in enumerate(image_paths):
+                img = Image.open(path)
+                img = img.resize((400, 300))
+                photo = ImageTk.PhotoImage(img)
+                images.append(photo)
+                showimg = ttk.Label(ReadNote, image=photo)
+                showimg.pack(pady=10)
+
+            ReadNote.images = images
         else:
             showerror("Ошибка", "Выберите заметку для чтения")
+
 
     def update_note():
         selected_index = NoteList.curselection()
         if selected_index:
             index = selected_index[0]
-            note_title, note_text = notes_list[index]
-            tag_text = tags_list[index]
+            note_title, note_text, tags, image_paths = notes_list[index]
+
             Rnotes = Tk()
             Rnotes.title("Редактирование заметки")
             Rnotes.geometry("600x710")
             Rnotes.resizable(False, False)
 
+
+            def add_img():
+                file_path = filedialog.askopenfilename(filetypes=[("Image files", "*.jpg *.jpeg *.png *.gif")])
+                if file_path:
+                    newphotos.insert("end", file_path)
+
+            def show_img():
+                selected_index = newphotos.curselection()
+                if selected_index:
+                    file_path = newphotos.get(selected_index[0])
+                    img = Image.open(file_path)
+                    img.show()
+                else:
+                    showerror(title="Пустое поле.", message="Пожалуйста, выберите фото!")
+
+            def delete_img():
+                selected_index = newphotos.curselection()
+                if selected_index:
+                    newphotos.delete(selected_index[0])
+
+
             label1 = ttk.Label(Rnotes, text="Заголовок")
             label1.place(relx=0)
 
             newtitle = ttk.Entry(Rnotes)
-            newtitle.insert(0, note_title.split("\n")[0]) 
-            newtitle.place(relx=0, rely=0.04, relwidth=1)
+            newtitle.place(relx=0, rely=0.025, relwidth=1)
+            newtitle.insert(0, note_title.split("\n")[0])
 
-            label2 = ttk.Label(Rnotes, text="Текст")
-            label2.place(relx=0, rely=0.16)
+            tag = ttk.Label(Rnotes, text="Теги")
+            tag.place(relx=0, rely=0.08)
 
-            newtext = ttk.Entry(Rnotes)
-            newtext.insert(0, note_text)
-            newtext.place(relx=0, rely=0.15, relwidth=1, relheight=0.75)
+            newtags = ttk.Entry(Rnotes)
+            newtags.place(relx=0, rely=0.1, relwidth=1)
+            newtags.insert(0, tags)
 
-            label3 = ttk.Label(Rnotes, text="теги")
-            label3.pack(padx=0, pady=50)  # По другому хотябы туда не поставить
+            label3 = ttk.Label(Rnotes, text="Текст")
+            label3.place(relx=0, rely=0.15)
 
-            newtag = ttk.Entry(Rnotes)
-            newtag.insert(0, tag_text)
-            newtag.place(relx=0, rely=0.11, relwidth=1)
+            newtext = Text(Rnotes)
+            newtext.place(relx=0, rely=0.17, relwidth=1, relheight=0.5)
+            newtext.insert("1.0", note_text)
 
+            newphotos = Listbox(Rnotes)
+            newphotos.place(relx=0, rely=0.7, relwidth=0.75, relheight=0.23)
+
+            for path in image_paths:
+                newphotos.insert("end", path)
+
+
+            addphoto = ttk.Button(Rnotes, text="Добавить фото", command=add_img)
+            addphoto.place(relx=0.765, rely=0.695)
+
+            showphoto = ttk.Button(Rnotes, text="Предпросмотр", command=show_img)
+            showphoto.place(relx=0.765, rely=0.795)
+
+            deletephoto = ttk.Button(Rnotes, text=" Удалить фото ", command=delete_img)
+            deletephoto.place(relx=0.765, rely=0.9)
 
             def save_note():
-                new_note_title = f"{newtitle.get()} \n (дата редактирования:{date.today()})"
-                new_note_text = newtext.get()
-                new_tag = newtag.get()
-                if new_note_title:
-                    notes_list[index] = new_note_title, new_note_text
-                    tags_list[index] = new_tag
-                    NoteList.delete(selected_index)
-                    NoteList.insert(index, new_note_title)
-                    save_notes_to_file() 
-                    save_tags_to_file()
+                note_title = f"{newtitle.get()} ({date.today()})"
+                note_text = newtext.get("1.0", "end")
+                tags_text = newtags.get()
+                file_paths = newphotos.get(0, "end")
 
+                if note_title:
+                    notes_list.append((note_title, note_text, tags_text, file_paths))
+                    NoteList.insert("end", note_title)
+                    save_notes_to_file()
                 Rnotes.destroy()
 
             save_btn = ttk.Button(Rnotes, text="Сохранить", command=save_note)
-            save_btn.place(relx=0.4, rely=0.9)
-
-        else:
-            showerror("Ошибка", "Выберите заметку для редактирования")
+            save_btn.place(relx=0.4, rely=0.95)
 
     def delete_note():
         selected_index = NoteList.curselection()
         if selected_index:
             selected = selected_index[0]
             notes_list.pop(selected)
-            tags_list.pop(selected)
             NoteList.delete(selected_index)
             save_notes_to_file() 
-            save_tags_to_file()
         else:
             showerror("Ошибка", "Выберите заметку для удаления")
 
-    def shortnotion():
-        Shortwin = Tk()
-        Shortwin.title("Быстрая заметка")
-        Shortwin.geometry("200x200")
-        Shortwin.resizable(False, False)
-
-        shorttext = ttk.Entry(Shortwin)
-        shorttext.place(relwidth=1, relheight=1)
 
     Createbtn = ttk.Button(Win2, text="Создать", command=new_notes)
     Createbtn.place(relx=0)
@@ -308,12 +359,8 @@ def notion():
     NoteList = Listbox(Win2)
     NoteList.place(relx=0, rely=0.05, relwidth=1, relheight=0.85)
     load_notes_from_file()
-    for note_title, note_text in notes_list:
+    for note_title, note_text, tags, image_paths in notes_list:
         NoteList.insert("end", note_title)
-    
-    load_tags_from_file()
-    Shortbtn = ttk.Button(Win2, text="+", command=shortnotion)
-    Shortbtn.place(relx=0.92, rely=0.9, relwidth=0.08)
 
 
 Mainwindow = Tk()
@@ -321,8 +368,8 @@ Mainwindow.title("Главное меню")
 Mainwindow.geometry("600x710")
 Mainwindow.resizable(False, False)
 
-Text = ttk.Label(text="Tast Manager", font=("Helvetica", 16))
-Text.place(relx=0.426, rely=0.35)
+welcometext = ttk.Label(text="Tast Manager", font=("Helvetica", 16))
+welcometext.place(relx=0.426, rely=0.35)
 
 btn = ttk.Button(text="Напоминания", command=windown1)
 btn.place(relx=0, y=550, width=600, height=50)
