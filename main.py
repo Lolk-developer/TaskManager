@@ -344,6 +344,78 @@ def notion():
             showerror("Ошибка", "Выберите заметку для удаления")
 
 
+        def tagSearch():
+        task = FindTag.get()
+        Ntag = Tk()
+        idex = []
+        idk=0
+        Ntag.title("Результат по поиску")
+        Ntag.geometry("500x510")
+        TagList = Listbox(Ntag)
+
+    def read_note2():
+            selected_index = TagList.curselection()
+            if selected_index:
+                selected_index = selected_index[0]
+                note_title, note_text, tags, image_paths = notes_list[idex[selected_index]]
+
+                ReadNote = Toplevel()
+                ReadNote.title(f"{note_title}")
+                ReadNote.geometry("600x710")
+
+                label1 = ttk.Label(ReadNote, text=note_title, font=("Helvetica", 16))
+                label1.pack(pady=10)
+
+                label2 = ttk.Label(ReadNote, text=f"теги: {tags}", wraplength=500, justify="left")
+                label2.pack(pady=10)
+
+                label3 = ttk.Label(ReadNote, text=note_text, wraplength=500, justify="left")
+                label3.pack(pady=10)
+
+                images = []
+
+                for i, path in enumerate(image_paths):
+                    img = Image.open(path)
+                    img = img.resize((400, 300))
+                    photo = ImageTk.PhotoImage(img)
+                    images.append(photo)
+                    showimg = ttk.Label(ReadNote, image=photo)
+                    showimg.pack(pady=10)
+
+                ReadNote.images = images
+            else:
+                showerror("Ошибка", "Выберите заметку для чтения")
+
+        def delete_note2():
+            selected_index = TagList.curselection()
+            if selected_index:
+                selected = selected_index[0]
+                notes_list.pop(idex[selected])
+                TagList.delete(selected_index)
+                NoteList.delete(idex[selected])
+                save_notes_to_file()
+            else:
+                showerror("Ошибка", "Выберите заметку для удаления")
+
+        Readbtn2 = ttk.Button(Ntag, text="Читать", command=read_note2)
+        Readbtn2.place(relx=0.42)
+
+        Delbtn2 = ttk.Button(Ntag, text="Удалить", command=delete_note2)
+        Delbtn2.place(relx=0.845)
+
+        EditBtn2 = ttk.Button(Ntag, text="Изменить")
+        EditBtn2.place(relx=0.60)
+
+
+        TagList.place(relx=0, rely=0.05, relwidth=1, relheight=0.85)
+        for note_title, note_text, tags, image_paths in notes_list:
+            if tags.find(task)!=-1:
+                idex.append(idk)
+                TagList.insert("end", note_title)
+            idk += 1
+
+
+
     Createbtn = ttk.Button(Win2, text="Создать", command=new_notes)
     Createbtn.place(relx=0)
 
@@ -355,6 +427,15 @@ def notion():
 
     EditBtn = ttk.Button(Win2, text="Изменить", command=update_note)
     EditBtn.place(relx=0.60)
+
+    FindTag = ttk.Entry(Win2)
+    FindTag.place(rely=0.94, relx=0.1, width=300)
+
+    LabelTag = ttk.Label(Win2, text="Поиск по тегам:")
+    LabelTag.place(relx=0.1, rely=0.91)
+
+    TagButton = ttk.Button(Win2, text="Искать", command=tagSearch)
+    TagButton.place(rely=0.937, relx=0.63)
 
     NoteList = Listbox(Win2)
     NoteList.place(relx=0, rely=0.05, relwidth=1, relheight=0.85)
