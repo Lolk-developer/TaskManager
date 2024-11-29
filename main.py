@@ -342,9 +342,7 @@ def notion():
             save_notes_to_file() 
         else:
             showerror("Ошибка", "Выберите заметку для удаления")
-
-
-        def tagSearch():
+    def tagSearch():
         task = FindTag.get()
         Ntag = Tk()
         idex = []
@@ -353,7 +351,7 @@ def notion():
         Ntag.geometry("500x510")
         TagList = Listbox(Ntag)
 
-    def read_note2():
+        def read_note2():
             selected_index = TagList.curselection()
             if selected_index:
                 selected_index = selected_index[0]
@@ -396,6 +394,25 @@ def notion():
                 save_notes_to_file()
             else:
                 showerror("Ошибка", "Выберите заметку для удаления")
+
+        Readbtn2 = ttk.Button(Ntag, text="Читать", command=read_note2)
+        Readbtn2.place(relx=0.42)
+
+        Delbtn2 = ttk.Button(Ntag, text="Удалить", command=delete_note2)
+        Delbtn2.place(relx=0.845)
+
+        EditBtn2 = ttk.Button(Ntag, text="Изменить")
+        EditBtn2.place(relx=0.60)
+
+
+        TagList.place(relx=0, rely=0.05, relwidth=1, relheight=0.85)
+        for note_title, note_text, tags, image_paths in notes_list:
+            if tags.find(task)!=-1:
+                idex.append(idk)
+                TagList.insert("end", note_title)
+            idk += 1
+
+        
 
         Readbtn2 = ttk.Button(Ntag, text="Читать", command=read_note2)
         Readbtn2.place(relx=0.42)
