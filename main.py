@@ -118,6 +118,8 @@ def windown1():  # Напоминания
     for item in lst:
         Tasklist.insert(0, item)
 
+    scrollbar = ttk.Scrollbar(orient="vertical", command=Tasklist.yview)
+    scrollbar.pack(side=RIGHT, fill=Y)
 
 notes_list = []
 
@@ -286,7 +288,7 @@ def notion():
 
             newtitle = ttk.Entry(Rnotes)
             newtitle.place(relx=0, rely=0.025, relwidth=1)
-            newtitle.insert(0, note_title.split("\n")[0])
+            newtitle.insert(0, note_title.split("|")[0])
 
             tag = ttk.Label(Rnotes, text="Теги")
             tag.place(relx=0, rely=0.08)
@@ -319,14 +321,15 @@ def notion():
             deletephoto.place(relx=0.765, rely=0.9)
 
             def save_note():
-                note_title = f"{newtitle.get()} ({date.today()})"
+                note_title = f"{newtitle.get()} | ({date.today()})"
                 note_text = newtext.get("1.0", "end")
                 tags_text = newtags.get()
                 file_paths = newphotos.get(0, "end")
 
                 if note_title:
-                    notes_list.append((note_title, note_text, tags_text, file_paths))
-                    NoteList.insert("end", note_title)
+                    notes_list[index] = note_title, note_text, tags_text, file_paths
+                    NoteList.delete(selected_index)
+                    NoteList.insert(index, note_title)
                     save_notes_to_file()
                 Rnotes.destroy()
 
@@ -459,6 +462,9 @@ def notion():
     load_notes_from_file()
     for note_title, note_text, tags, image_paths in notes_list:
         NoteList.insert("end", note_title)
+
+    scrollbar = ttk.Scrollbar(orient="vertical", command=NoteList.yview)
+    scrollbar.pack(side=RIGHT, fill=Y)
 
 
 Mainwindow = Tk()
