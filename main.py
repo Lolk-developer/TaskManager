@@ -216,7 +216,6 @@ def notion():
         save_btn = ttk.Button(Nnotes, text="Сохранить", command=save_note)
         save_btn.place(relx=0.4, rely=0.95)
 
-
     def read_note():
         selected_index = NoteList.curselection()
         if selected_index:
@@ -225,28 +224,45 @@ def notion():
 
             ReadNote = Toplevel()
             ReadNote.title(f"{note_title}")
-            ReadNote.geometry("600x710")
+            ReadNote.geometry("620x720")
 
-            label1 = ttk.Label(ReadNote, text=note_title, font=("Helvetica", 16))
+            # Создание холста и фрейма
+            canvas = Canvas(ReadNote)
+            scrollbar = Scrollbar(ReadNote, orient=VERTICAL, command=canvas.yview)
+            scrollable_frame = ttk.Frame(canvas)
+
+            scrollable_frame.bind(
+                "<Configure>",
+                lambda e: canvas.configure(
+                    scrollregion=canvas.bbox("all")
+                )
+            )
+
+            canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+            canvas.configure(yscrollcommand=scrollbar.set)
+
+            label1 = ttk.Label(scrollable_frame, text=note_title, font=("Helvetica", 16))
             label1.pack(pady=10)
 
-            label2 = ttk.Label(ReadNote, text=f"теги: {tags}", wraplength=500, justify="left")
+            label2 = ttk.Label(scrollable_frame, text=f"теги: {tags}", wraplength=500, justify="left")
             label2.pack(pady=10)
 
-            label3 = ttk.Label(ReadNote, text=note_text, wraplength=500, justify="left")
+            label3 = ttk.Label(scrollable_frame, text=note_text, wraplength=500, justify="left")
             label3.pack(pady=10)
 
             images = []
-
             for i, path in enumerate(image_paths):
                 img = Image.open(path)
                 img = img.resize((400, 300))
                 photo = ImageTk.PhotoImage(img)
                 images.append(photo)
-                showimg = ttk.Label(ReadNote, image=photo)
+                showimg = ttk.Label(scrollable_frame, image=photo)
                 showimg.pack(pady=10)
 
             ReadNote.images = images
+
+            canvas.pack(side=LEFT, fill=BOTH, expand=True)
+            scrollbar.pack(side=RIGHT, fill=Y)
         else:
             showerror("Ошибка", "Выберите заметку для чтения")
 
@@ -434,19 +450,20 @@ def notion():
                 TagList.insert("end", note_title)
             idk += 1
 
+    button_frame = ttk.Frame(Win2)
+    button_frame.pack(side=TOP, fill=X, padx=10, pady=5)
 
+    Createbtn = ttk.Button(button_frame, text="Создать", command=new_notes)
+    Createbtn.pack(side=LEFT, expand=True, fill=X, padx=5)
 
-    Createbtn = ttk.Button(Win2, text="Создать", command=new_notes)
-    Createbtn.place(relx=0)
+    Readbtn = ttk.Button(button_frame, text="Читать", command=read_note)
+    Readbtn.pack(side=LEFT, expand=True, fill=X, padx=5)
 
-    Readbtn = ttk.Button(Win2, text="Читать", command=read_note)
-    Readbtn.place(relx=0.42)
+    EditBtn = ttk.Button(button_frame, text="Изменить", command=update_note)
+    EditBtn.pack(side=LEFT, expand=True, fill=X, padx=5)
 
-    Delbtn = ttk.Button(Win2, text="Удалить", command=delete_note)
-    Delbtn.place(relx=0.845)
-
-    EditBtn = ttk.Button(Win2, text="Изменить", command=update_note)
-    EditBtn.place(relx=0.60)
+    Delbtn = ttk.Button(button_frame, text="Удалить", command=delete_note)
+    Delbtn.pack(side=LEFT, expand=True, fill=X, padx=5)
 
     FindTag = ttk.Entry(Win2)
     FindTag.place(rely=0.94, relx=0.1, width=300)
